@@ -1,0 +1,141 @@
+﻿@model IEnumerable<ServicioSocial.Models.Actividad>
+@{
+    ViewData["Title"] = "Historial de Actividades Revisadas";
+    var totalAprobadas = Model.Count(a => a.Estado == "Aprobado");
+    var totalRechazadas = Model.Count(a => a.Estado == "Rechazado");
+    var totalHorasAprobadas = Model.Where(a => a.Estado == "Aprobado").Sum(a => a.HorasDedicadas);
+}
+
+<div class="container">
+    <h1>@ViewData["Title"]</h1>
+
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <a asp-action="ActividadesPendientes" class="btn btn-primary">
+                <i class="fas fa-inbox"></i> Volver a Pendientes
+            </a>
+            <a asp-action="Estadisticas" class="btn btn-outline-info">
+                <i class="fas fa-chart-bar"></i> Estadísticas
+            </a>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-light">
+                <div class="card-body py-2">
+                    <div class="row text-center">
+                        <div class="col-4">
+                            <small class="text-muted">Total</small>
+                            <div class="fw-bold">@Model.Count()</div>
+                        </div>
+                        <div class="col-4">
+                            <small class="text-success">Aprobadas</small>
+                            <div class="fw-bold text-success">@totalAprobadas</div>
+                        </div>
+                        <div class="col-4">
+                            <small class="text-danger">Rechazadas</small>
+                            <div class="fw-bold text-danger">@totalRechazadas</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (Model.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Estudiante</th>
+                        <th>Descripción</th>
+                        <th>Fecha</th>
+                        <th>Horas</th>
+                        <th>Estado</th>
+                        <th>Comentario</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                <strong>@item.Usuario?.FullName</strong>
+                                <br>
+                                <small class="text-muted">@item.Usuario?.Email</small>
+                            </td>
+                            <td style="max-width: 250px; word-wrap: break-word;">
+                                <div class="activity-description">
+                                    @item.Descripcion
+                                </div>
+                            </td>
+                            <td>@item.Fecha.ToString("dd/MM/yyyy")</td>
+                            <td>
+                                <span class="badge bg-primary">@item.HorasDedicadas.ToString("0.0")h</span>
+                            </td>
+                            <td>
+                                <span class="badge
+                                    @(item.Estado == "Aprobado" ? "bg-success" : "bg-danger")">
+                                    @item.Estado
+                                </span>
+                            </td>
+                            <td style="max-width: 200px; word-wrap: break-word;">
+                                @if (!string.IsNullOrEmpty(item.ComentarioDocente))
+                                {
+                                    <em>@item.ComentarioDocente</em>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Sin comentario</span>
+                                }
+                            </td>
+                            <td>
+                                <a asp-action="DetallesActividad" asp-route-id="@item.Id"
+                                   class="btn btn-info btn-sm" title="Ver detalles">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="card bg-success text-white">
+                    <div class="card-body text-center">
+                        <h5>Total Horas Aprobadas</h5>
+                        <h3>@totalHorasAprobadas.ToString("0.0") horas</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card bg-primary text-white">
+                    <div class="card-body text-center">
+                        <h5>Actividades Revisadas</h5>
+                        <h3>@Model.Count() actividades</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info text-center">
+            <h4><i class="fas fa-history"></i> No hay historial</h4>
+            <p>No se han revisado actividades todavía.</p>
+            <a asp-action="ActividadesPendientes" class="btn btn-primary">Revisar Actividades Pendientes</a>
+        </div>
+    }
+</div>
+
+@section Styles {
+    <style>
+        .activity-description {
+            max-height: 80px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+    </style>
+}

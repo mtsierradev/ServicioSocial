@@ -1,0 +1,194 @@
+﻿@{
+    ViewData["Title"] = "Estadísticas del Sistema";
+
+    // Valores por defecto para evitar null reference
+    var totalActividades = ViewBag.TotalActividades ?? 0;
+    var actividadesPendientes = ViewBag.ActividadesPendientes ?? 0;
+    var actividadesAprobadas = ViewBag.ActividadesAprobadas ?? 0;
+    var actividadesRechazadas = ViewBag.ActividadesRechazadas ?? 0;
+    var totalHorasAprobadas = ViewBag.TotalHorasAprobadas ?? 0m;
+}
+
+<div class="container">
+
+    <div class="alert alert-info mb-4">
+        <h4><i class="fas fa-user-shield"></i> ¡Bienvenido, @User.Identity.Name!</h4>
+        <p class="mb-0">Panel de administración y estadísticas del sistema.</p>
+    </div>
+
+    <h1>@ViewData["Title"]</h1>
+
+    @if (TempData["Error"] != null)
+    {
+            <div class="alert alert-danger">@TempData["Error"]</div>
+    }
+
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <a asp-action="ActividadesPendientes" class="btn btn-primary">
+                <i class="fas fa-inbox"></i> Actividades Pendientes
+            </a>
+            <a asp-action="HistorialActividades" class="btn btn-outline-primary">
+                <i class="fas fa-history"></i> Ver Historial
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Tarjeta de Total de Actividades -->
+        <div class="col-md-3 mb-4">
+            <div class="card bg-primary text-white">
+                <div class="card-body text-center">
+                    <i class="fas fa-tasks fa-3x mb-3"></i>
+                    <h3>@totalActividades</h3>
+                    <p class="card-text">Total de Actividades</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tarjeta de Actividades Pendientes -->
+        <div class="col-md-3 mb-4">
+            <div class="card bg-warning text-dark">
+                <div class="card-body text-center">
+                    <i class="fas fa-clock fa-3x mb-3"></i>
+                    <h3>@actividadesPendientes</h3>
+                    <p class="card-text">Pendientes de Revisión</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tarjeta de Actividades Aprobadas -->
+        <div class="col-md-3 mb-4">
+            <div class="card bg-success text-white">
+                <div class="card-body text-center">
+                    <i class="fas fa-check-circle fa-3x mb-3"></i>
+                    <h3>@actividadesAprobadas</h3>
+                    <p class="card-text">Actividades Aprobadas</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tarjeta de Actividades Rechazadas -->
+        <div class="col-md-3 mb-4">
+            <div class="card bg-danger text-white">
+                <div class="card-body text-center">
+                    <i class="fas fa-times-circle fa-3x mb-3"></i>
+                    <h3>@actividadesRechazadas</h3>
+                    <p class="card-text">Actividades Rechazadas</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tarjeta de Total de Horas Aprobadas -->
+    <div class="row">
+        <div class="col-md-6 offset-md-3 mb-4">
+            <div class="card bg-info text-white">
+                <div class="card-body text-center">
+                    <i class="fas fa-chart-line fa-3x mb-3"></i>
+                    <h2>@totalHorasAprobadas.ToString("0.0") Horas</h2>
+                    <p class="card-text">Total de Horas Aprobadas</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gráfico simple de porcentajes -->
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-chart-pie"></i> Distribución de Actividades
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @{
+                        var total = totalActividades > 0 ? totalActividades : 1; // Evitar división por cero
+                        var porcentajeAprobadas = (actividadesAprobadas * 100.0) / total;
+                        var porcentajeRechazadas = (actividadesRechazadas * 100.0) / total;
+                        var porcentajePendientes = (actividadesPendientes * 100.0) / total;
+                    }
+
+                    <div class="progress mb-3" style="height: 30px;">
+                        <div class="progress-bar bg-success" role="progressbar" 
+                             style="width: @porcentajeAprobadas%" 
+                             aria-valuenow="@porcentajeAprobadas" aria-valuemin="0" aria-valuemax="100">
+                            Aprobadas: @actividadesAprobadas (@porcentajeAprobadas.ToString("0.0")%)
+                        </div>
+                    </div>
+
+                    <div class="progress mb-3" style="height: 30px;">
+                        <div class="progress-bar bg-danger" role="progressbar" 
+                             style="width: @porcentajeRechazadas%" 
+                             aria-valuenow="@porcentajeRechazadas" aria-valuemin="0" aria-valuemax="100">
+                            Rechazadas: @actividadesRechazadas (@porcentajeRechazadas.ToString("0.0")%)
+                        </div>
+                    </div>
+
+                    <div class="progress mb-3" style="height: 30px;">
+                        <div class="progress-bar bg-warning" role="progressbar" 
+                             style="width: @porcentajePendientes%" 
+                             aria-valuenow="@porcentajePendientes" aria-valuemin="0" aria-valuemax="100">
+                            Pendientes: @actividadesPendientes (@porcentajePendientes.ToString("0.0")%)
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Información adicional -->
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-info-circle"></i> Resumen
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Total de actividades registradas
+                            <span class="badge bg-primary rounded-pill">@totalActividades</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Actividades por revisar
+                            <span class="badge bg-warning rounded-pill">@actividadesPendientes</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Actividades aprobadas
+                            <span class="badge bg-success rounded-pill">@actividadesAprobadas</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Actividades rechazadas
+                            <span class="badge bg-danger rounded-pill">@actividadesRechazadas</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Horas totales aprobadas
+                            <span class="badge bg-info rounded-pill">@totalHorasAprobadas.ToString("0.0") h</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-chart-bar"></i> Métricas
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="text-center">
+                        <h4>Tasa de Aprobación</h4>
+                        <h2 class="text-success">@((actividadesAprobadas * 100.0 / total).ToString("0.0"))%</h2>
+                        <p class="text-muted">de las actividades revisadas fueron aprobadas</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

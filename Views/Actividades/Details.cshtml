@@ -1,0 +1,42 @@
+﻿@model ServicioSocial.Models.Actividad
+@{
+    ViewData["Title"] = "Detalles de Actividad";
+}
+
+<div class="container">
+    <h1>@ViewData["Title"]</h1>
+    <hr />
+
+    <div>
+        <dl class="row">
+            <dt class="col-sm-3">Descripción:</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(model => model.Descripcion)</dd>
+
+            <dt class="col-sm-3">Fecha:</dt>
+            <dd class="col-sm-9">@Model.Fecha.ToString("dd/MM/yyyy")</dd>
+
+            <dt class="col-sm-3">Horas dedicadas:</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(model => model.HorasDedicadas)</dd>
+
+            <dt class="col-sm-3">Estado:</dt>
+            <dd class="col-sm-9">
+                <span class="badge
+                    @(Model.Estado == "Aprobado" ? "bg-success" :
+                      Model.Estado == "Rechazado" ? "bg-danger" : "bg-warning")">
+                    @Html.DisplayFor(model => model.Estado)
+                </span>
+            </dd>
+
+            @if (!string.IsNullOrEmpty(Model.ComentarioDocente))
+            {
+                <dt class="col-sm-3">Comentario del docente:</dt>
+                <dd class="col-sm-9">@Html.DisplayFor(model => model.ComentarioDocente)</dd>
+            }
+        </dl>
+    </div>
+
+    <div>
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Editar</a>
+        <a asp-action="Index" class="btn btn-secondary">Volver a la lista</a>
+    </div>
+</div>

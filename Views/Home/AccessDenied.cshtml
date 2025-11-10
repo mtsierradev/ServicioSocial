@@ -1,0 +1,63 @@
+﻿@{
+    ViewData["Title"] = "Acceso Denegado";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            <div class="card shadow-lg">
+                <div class="card-header bg-danger text-white py-3">
+                    <h2 class="mb-0"><i class="fas fa-ban me-2"></i>Acceso Denegado</h2>
+                </div>
+                <div class="card-body p-5">
+                    <div class="mb-4">
+                        <i class="fas fa-lock fa-6x text-danger mb-4"></i>
+                        <h3 class="text-dark">No tienes permisos para acceder a esta página</h3>
+                    </div>
+
+                    <p class="lead text-muted mb-4">
+                        Como <strong>@(User.IsInRole("Docente") ? "Docente" : User.IsInRole("Admin") ? "Administrador" : "Usuario")</strong>,
+                        no puedes acceder a esta sección.
+                    </p>
+
+                    <div class="row mt-5">
+                        <div class="col-md-8 mx-auto">
+                            <div class="d-grid gap-3">
+                                @if (User.IsInRole("Docente") || User.IsInRole("Admin"))
+                                {
+                                    <a asp-controller="Docentes" asp-action="ActividadesPendientes" class="btn btn-primary btn-lg">
+                                        <i class="fas fa-chalkboard-teacher me-2"></i> Ir al Panel Docente
+                                    </a>
+                                }
+                                else if (User.IsInRole("User"))
+                                {
+                                    <a asp-controller="Actividades" asp-action="Index" class="btn btn-primary btn-lg">
+                                        <i class="fas fa-tasks me-2"></i> Ir a Mis Actividades
+                                    </a>
+                                }
+
+                                <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary btn-lg">
+                                    <i class="fas fa-home me-2"></i> Ir al Inicio
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ✅ REDIRECCIÓN AUTOMÁTICA DESPUÉS DE 3 SEGUNDOS
+    setTimeout(function() {
+    @if (User.IsInRole("Docente") || User.IsInRole("Admin"))
+    {
+        <text>window.location.href = '@Url.Action("ActividadesPendientes", "Docentes")';</text>
+    }
+    else if (User.IsInRole("User"))
+    {
+        <text>window.location.href = '@Url.Action("Index", "Actividades")';</text>
+    }
+    }, 3000); // 3 segundos
+</script>

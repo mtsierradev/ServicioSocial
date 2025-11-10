@@ -1,0 +1,107 @@
+﻿@model IEnumerable<ServicioSocial.Models.Actividad>
+@{
+    ViewData["Title"] = "Mis Actividades";
+    var totalHorasAprobadas = ViewBag.TotalHorasAprobadas ?? 0;
+    var maximoHoras = ViewBag.MaximoHoras ?? 80;
+    var horasRestantes = maximoHoras - totalHorasAprobadas;
+}
+
+<div class="container">
+
+    <div class="alert alert-primary mb-4">
+        <h4><i class="fas fa-user-graduate"></i> ¡Bienvenido, @User.Identity.Name!</h4>
+        <p class="mb-0">Aquí puedes gestionar todas tus actividades de servicio social.</p>
+    </div>
+
+    <h1>@ViewData["Title"]</h1>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+
+    <!-- ✅ PANEL DE PROGRESO DE HORAS -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <a asp-action="Create" class="btn btn-primary">Registrar Nueva Actividad</a>
+        </div>
+        <div class="col-md-4">
+            <div class="card @(horasRestantes <= 0 ? "bg-success text-white" : "bg-light")">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Progreso de Horas</h5>
+                    <div class="progress mb-2" style="height: 25px;">
+                        @{
+                            var porcentaje = (totalHorasAprobadas * 100) / maximoHoras;
+                            porcentaje = Math.Min(porcentaje, 100); // No más del 100%
+                        }
+                        <div class="progress-bar @(porcentaje >= 100 ? "bg-success" : "bg-info")"
+                             role="progressbar" style="width: @porcentaje%;"
+                             aria-valuenow="@porcentaje" aria-valuemin="0" aria-valuemax="100">
+                            @porcentaje%
+                        </div>
+                    </div>
+                    <p class="card-text mb-0">
+                        <strong>@totalHorasAprobadas.ToString("0.0")</strong> de <strong>@maximoHoras</strong> horas aprobadas
+                        @if (horasRestantes > 0)
+                        {
+                            <br>
+
+                            <small>Te quedan <strong>@horasRestantes.ToString("0.0")</strong> horas disponibles</small>
+                        }
+                        else
+                        {
+                            <br>
+
+                            <small>¡Has completado todas las horas requeridas!</small>
+                        }
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Descripción</th>
+                    <th>Fecha</th>
+                    <th>Horas</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td style="max-width: 300px; word-wrap: break-word;">
+                            @Html.DisplayFor(modelItem => item.Descripcion)
+                        </td>
+                        <td>@item.Fecha.ToString("dd/MM/yyyy")</td>
+                        <td>@item.HorasDedicadas.ToString("0.0")</td>
+                        <td>
+                            <span class="badge
+                                @(item.Estado == "Aprobado" ? "bg-success" :
+                                  item.Estado == "Rechazado" ? "bg-danger" : "bg-warning")">
+                                @item.Estado
+                            </span>
+                        </td>
+                        <td>
+                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning btn-sm">Editar</a>
+                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-info btn-sm">Detalles</a>
+                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger btn-sm">Eliminar</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info text-center">
+            <p>No hay actividades registradas. <a asp-action="Create">Registra tu primera actividad</a>.</p>
+        </div>
+    }
+</div>

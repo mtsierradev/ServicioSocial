@@ -1,0 +1,159 @@
+﻿@model ServicioSocial.Models.Actividad
+@{
+    ViewData["Title"] = "Detalles de Actividad";
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="card-title mb-0">
+                        <i class="fas fa-info-circle"></i> @ViewData["Title"]
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-sm-4">
+                            <strong>Estudiante:</strong>
+                        </div>
+                        <div class="col-sm-8">
+                            @Model.Usuario?.FullName
+                            <br>
+                            <small class="text-muted">@Model.Usuario?.Email</small>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-sm-4">
+                            <strong>Fecha de Actividad:</strong>
+                        </div>
+                        <div class="col-sm-8">
+                            @Model.Fecha.ToString("dd/MM/yyyy")
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-sm-4">
+                            <strong>Horas Dedicadas:</strong>
+                        </div>
+                        <div class="col-sm-8">
+                            <span class="badge bg-primary fs-6">@Model.HorasDedicadas.ToString("0.0") horas</span>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-sm-4">
+                            <strong>Estado:</strong>
+                        </div>
+                        <div class="col-sm-8">
+                            <span class="badge
+                                @(Model.Estado == "Aprobado" ? "bg-success" :
+                                  Model.Estado == "Rechazado" ? "bg-danger" : "bg-warning") fs-6">
+                                @Model.Estado
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-sm-4">
+                            <strong>Descripción:</strong>
+                        </div>
+                        <div class="col-sm-8">
+                            <div class="border p-3 bg-light rounded">
+                                @Model.Descripcion
+                            </div>
+                        </div>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(Model.ComentarioDocente))
+                    {
+                        <div class="row mb-3">
+                            <div class="col-sm-4">
+                                <strong>Comentario del Docente:</strong>
+                            </div>
+                            <div class="col-sm-8">
+                                <div class="border p-3 bg-light rounded">
+                                    <em>@Model.ComentarioDocente</em>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    @if (Model.Estado == "Pendiente")
+                    {
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                    <button type="button" class="btn btn-success me-md-2"
+                                            data-bs-toggle="modal" data-bs-target="#aprobarModal">
+                                        <i class="fas fa-check"></i> Aprobar
+                                    </button>
+                                    <button type="button" class="btn btn-danger"
+                                            data-bs-toggle="modal" data-bs-target="#rechazarModal">
+                                        <i class="fas fa-times"></i> Rechazar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Modal Aprobar -->
+                        <div class="modal fade" id="aprobarModal" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header bg-success text-white">
+                                        <h5 class="modal-title">Aprobar Actividad</h5>
+                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <form asp-action="AprobarActividad" method="post">
+                                        <input type="hidden" name="id" value="@Model.Id" />
+                                        <div class="modal-body">
+                                            <div class="mb-3">
+                                                <label class="form-label">Comentario (opcional):</label>
+                                                <textarea name="comentario" class="form-control" rows="3"></textarea>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                            <button type="submit" class="btn btn-success">Aprobar</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Modal Rechazar -->
+                        <div class="modal fade" id="rechazarModal" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header bg-danger text-white">
+                                        <h5 class="modal-title">Rechazar Actividad</h5>
+                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <form asp-action="RechazarActividad" method="post">
+                                        <input type="hidden" name="id" value="@Model.Id" />
+                                        <div class="modal-body">
+                                            <div class="mb-3">
+                                                <label class="form-label">Comentario (requerido):</label>
+                                                <textarea name="comentario" class="form-control" rows="3" required></textarea>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                            <button type="submit" class="btn btn-danger">Rechazar</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+                <div class="card-footer">
+                    <a asp-action="ActividadesPendientes" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Volver a la lista
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

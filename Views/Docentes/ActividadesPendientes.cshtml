@@ -1,0 +1,206 @@
+﻿@model IEnumerable<ServicioSocial.Models.Actividad>
+@{
+    ViewData["Title"] = "Actividades Pendientes de Revisión";
+}
+
+<div class="container">
+
+    <!-- MENSAJE DE BIENVENIDA PARA DOCENTE -->
+    <div class="alert alert-warning mb-4">
+        <h4><i class="fas fa-chalkboard-teacher"></i> ¡Bienvenido, @User.Identity.Name!</h4>
+        <p class="mb-0">Panel de revisión de actividades de servicio social.</p>
+    </div>
+
+    <h1>@ViewData["Title"]</h1>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
+
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <a asp-action="HistorialActividades" class="btn btn-outline-primary">
+                <i class="fas fa-history"></i> Ver Historial
+            </a>
+            <a asp-action="Estadisticas" class="btn btn-outline-info">
+                <i class="fas fa-chart-bar"></i> Estadísticas
+            </a>
+        </div>
+        <div class="col-md-6 text-end">
+            <div class="alert alert-warning">
+                <strong>@Model.Count() actividades pendientes</strong>
+            </div>
+        </div>
+    </div>
+
+    @if (Model.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Estudiante</th>
+                        <th>Descripción</th>
+                        <th>Fecha</th>
+                        <th>Horas</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                <strong>@item.Usuario?.FullName</strong>
+                                <br>
+                                <small class="text-muted">@item.Usuario?.Email</small>
+                            </td>
+                            <td style="max-width: 300px; word-wrap: break-word;">
+                                <div class="activity-description">
+                                    @item.Descripcion
+                                </div>
+                            </td>
+                            <td>@item.Fecha.ToString("dd/MM/yyyy")</td>
+                            <td>
+                                <span class="badge bg-primary fs-6">@item.HorasDedicadas.ToString("0.0")h</span>
+                            </td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a asp-action="DetallesActividad" asp-route-id="@item.Id"
+                                       class="btn btn-info btn-sm" title="Ver detalles">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <button type="button" class="btn btn-success btn-sm"
+                                            data-bs-toggle="modal" data-bs-target="#aprobarModal@(item.Id)"
+                                            title="Aprobar actividad">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-danger btn-sm"
+                                            data-bs-toggle="modal" data-bs-target="#rechazarModal@(item.Id)"
+                                            title="Rechazar actividad">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- Modal Aprobar -->
+                        <div class="modal fade" id="aprobarModal@(item.Id)" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header bg-success text-white">
+                                        <h5 class="modal-title">
+                                            <i class="fas fa-check"></i> Aprobar Actividad
+                                        </h5>
+                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <form asp-action="AprobarActividad" method="post">
+                                        <input type="hidden" name="id" value="@item.Id" />
+                                        <div class="modal-body">
+                                            <p><strong>Estudiante:</strong> @item.Usuario?.FullName</p>
+                                            <p><strong>Actividad:</strong> @item.Descripcion</p>
+                                            <p><strong>Horas:</strong> @item.HorasDedicadas.ToString("0.0")</p>
+
+                                            <div class="mb-3">
+                                                <label class="form-label">Comentario (opcional):</label>
+                                                <textarea name="comentario" class="form-control" rows="3"
+                                                          placeholder="Agregar un comentario opcional..."></textarea>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                            <button type="submit" class="btn btn-success">
+                                                <i class="fas fa-check"></i> Aprobar Actividad
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Modal Rechazar -->
+                        <div class="modal fade" id="rechazarModal@(item.Id)" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header bg-danger text-white">
+                                        <h5 class="modal-title">
+                                            <i class="fas fa-times"></i> Rechazar Actividad
+                                        </h5>
+                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <form asp-action="RechazarActividad" method="post">
+                                        <input type="hidden" name="id" value="@item.Id" />
+                                        <div class="modal-body">
+                                            <p><strong>Estudiante:</strong> @item.Usuario?.FullName</p>
+                                            <p><strong>Actividad:</strong> @item.Descripcion</p>
+                                            <p><strong>Horas:</strong> @item.HorasDedicadas.ToString("0.0")</p>
+
+                                            <div class="mb-3">
+                                                <label class="form-label">Comentario (requerido):</label>
+                                                <textarea name="comentario" class="form-control" rows="3"
+                                                          placeholder="Explica por qué se rechaza la actividad..." required></textarea>
+                                                <small class="form-text text-muted">Este comentario será visible para el estudiante.</small>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                            <button type="submit" class="btn btn-danger">
+                                                <i class="fas fa-times"></i> Rechazar Actividad
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info text-center">
+            <h4><i class="fas fa-check-circle"></i> ¡Excelente!</h4>
+            <p>No hay actividades pendientes para revisar en este momento.</p>
+            <a asp-action="HistorialActividades" class="btn btn-primary">Revisar Historial de Actividades</a>
+        </div>
+    }
+</div>
+
+<style>
+    .activity-description {
+        max-height: 100px;
+        overflow-y: auto;
+        padding-right: 5px;
+    }
+
+        .activity-description::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .activity-description::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 10px;
+        }
+
+    .btn-group .btn {
+        margin: 0 2px;
+    }
+</style>
+
+@section Scripts {
+    <script>
+        // Auto-focus en el textarea del modal cuando se abre
+        $(document).ready(function() {
+            $('.modal').on('shown.bs.modal', function() {
+                $(this).find('textarea').first().focus();
+            });
+        });
+    </script>
+}

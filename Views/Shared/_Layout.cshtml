@@ -1,0 +1,151 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - ServicioSocial</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/ServicioSocial.styles.css" asp-append-version="true" />
+
+    <!-- ✅ AGREGA ESTA LÍNEA PARA LOS ÍCONOS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+
+    <!-- ✅ RENDERIZA LA SECCIÓN STYLES SI EXISTE -->
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container-fluid">
+                <!-- Logo/Marca -->
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">ServicioSocial</a>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+                        @if (User.Identity?.IsAuthenticated ?? false)
+                        {
+                            <!-- ✅ SOLO MOSTRAR "INICIO" SI NO ES ADMIN, DOCENTE NI USER -->
+                            <!-- (Básicamente, solo mostrar inicio si no tiene ningún rol específico) -->
+                            @if (!User.IsInRole("Admin") && !User.IsInRole("Docente") && !User.IsInRole("User"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-controller="Home" asp-action="Index">
+                                        <i class="fas fa-home"></i> Inicio
+                                    </a>
+                                </li>
+                            }
+        
+                            <!-- ✅ SOLO USUARIOS CON ROL "User" VEN "Mis Actividades" -->
+                            @if (User.IsInRole("User"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-controller="Actividades" asp-action="Index">
+                                        <i class="fas fa-tasks"></i> Mis Actividades
+                                    </a>
+                                </li>
+                            }
+        
+                            <!-- ✅ DOCENTES Y ADMINS VEN "Panel Docente" -->
+                            @if (User.IsInRole("Docente") || User.IsInRole("Admin"))
+                            {
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle text-dark" href="#" id="docenteDropdown" role="button" 
+                                       data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="fas fa-chalkboard-teacher"></i> Panel Docente
+                                    </a>
+                                    <ul class="dropdown-menu" aria-labelledby="docenteDropdown">
+                                        <li>
+                                            <a class="dropdown-item" asp-controller="Docentes" asp-action="ActividadesPendientes">
+                                                <i class="fas fa-inbox"></i> Actividades Pendientes
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" asp-controller="Docentes" asp-action="HistorialActividades">
+                                                <i class="fas fa-history"></i> Historial
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" asp-controller="Docentes" asp-action="Estadisticas">
+                                                <i class="fas fa-chart-bar"></i> Estadísticas
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+                            }
+        
+                            <!-- ✅ SOLO ADMINS VEN "Registrar Usuario" -->
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Register">
+                                        <i class="fas fa-user-plus"></i> Registrar Usuario
+                                    </a>
+                                </li>
+                            }
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Login">
+                                    <i class="fas fa-sign-in-alt"></i> Iniciar sesión
+                                </a>
+                            </li>
+                        }
+                    </ul>
+
+                    <ul class="navbar-nav">
+                        @if (User.Identity?.IsAuthenticated ?? false)
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-dark" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    @User.Identity.Name
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                    <li><a class="dropdown-item" asp-area="Identity" asp-page="/Account/Manage/Index">Perfil</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+                                            <button type="submit" class="dropdown-item">Cerrar sesión</button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Login">Iniciar sesión</a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2025 - ServicioSocial
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <!-- ✅ RENDERIZA LA SECCIÓN SCRIPTS -->
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,39 @@
+﻿@model ServicioSocial.Models.Actividad
+@{
+    ViewData["Title"] = "Eliminar Actividad";
+}
+
+<div class="container">
+    <h1>@ViewData["Title"]</h1>
+    <hr />
+
+    <h3>¿Estás seguro de que quieres eliminar esta actividad?</h3>
+
+    <div>
+        <dl class="row">
+            <dt class="col-sm-3">Descripción:</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(model => model.Descripcion)</dd>
+
+            <dt class="col-sm-3">Fecha:</dt>
+            <dd class="col-sm-9">@Model.Fecha.ToString("dd/MM/yyyy")</dd>
+
+            <dt class="col-sm-3">Horas dedicadas:</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(model => model.HorasDedicadas)</dd>
+
+            <dt class="col-sm-3">Estado:</dt>
+            <dd class="col-sm-9">
+                <span class="badge
+                    @(Model.Estado == "Aprobado" ? "bg-success" :
+                      Model.Estado == "Rechazado" ? "bg-danger" : "bg-warning")">
+                    @Html.DisplayFor(model => model.Estado)
+                </span>
+            </dd>
+        </dl>
+
+        <form asp-action="Delete">
+            <input type="hidden" asp-for="Id" />
+            <button type="submit" class="btn btn-danger">Eliminar</button>
+            <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+        </form>
+    </div>
+</div>
